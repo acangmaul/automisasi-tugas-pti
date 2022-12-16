@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, date
 from gspread.spreadsheet import ExportFormat
 import gspread
 import sys
@@ -11,17 +11,21 @@ locale.setlocale(locale.LC_ALL,
 def main():
     service_account = gspread.service_account(filename="creds.json")
     doc = service_account.open_by_key("1CKSNp_cAqZ7wIO-SDjOqh7FqrBSEF6L2VbE3Dz19X7E")
-    sheet = doc.sheet1
 
     with open(f"Laporan {date.today().strftime('%d-%b-%Y')}.pdf", "wb") as f:
         pdf = doc.export(ExportFormat.PDF)
         f.write(pdf)
 
-    RANGE_TANGGAL = "A3:F3"
-    RANGE_NAMA_NPM = "B5:C44"
+    # kalau jam 12 malam
+    # update tanggal dan kosongkan spreadsheet
+    if datetime.now().hour == 0:
+        sheet = doc.sheet1
 
-    sheet.update(RANGE_TANGGAL, date.today().strftime("%A, %d %B %Y").upper())
-    # sheet.batch_clear(RANGE_NAMA_NPM)
+        range_tanggal = "A3:F3"
+        range_nama_npm = "B5:C44"
+
+        sheet.update(range_tanggal, date.today().strftime("%A, %d %B %Y").upper())
+        sheet.batch_clear(range_nama_npm)
 
 
 if __name__ == "__main__":
